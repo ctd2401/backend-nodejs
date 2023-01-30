@@ -2,19 +2,22 @@ const express = require('express')
 const app = express()
 const { route } = require('./routes/allRoutes');
 const cors = require("cors");
-var db = require('./config/db.config')
 var bodyParser = require('body-parser')
 require("dotenv").config()
+const sequelize = require('./config/database')
 port=process.env.PORT||2401
-
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 route(app);
+
+app.get('/createDB',(req,res)=>{
+    const db = require('./config/createdatabase')
+})
 app.get('/',(req,res)=>{
     res.send("hi")
+    console.log('call server')
 })
 app.listen(port,()=>
 {

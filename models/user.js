@@ -1,19 +1,29 @@
-var db = require('../config/db.config.js')
-var User = {
-  getAllUser:function(cb){
-    return db.query("Select * from user",cb);
-  },
-  getNumberUser:function(cb){
-    return db.query("Select count(*) from user",cb);
-  },
-  getOneUser:function(id,cb){
-    return db.query("select * from user where iduser=?",[id],cb);
-  },
-  findByUserName:function(un,cb){
-    return db.query("select * from user where username=?",[un],cb);
-  },
-  addOneUser:function(user,cb){
-    return db.query("Insert into user(username,password,name) values(?,?,?)",[user.username,user.password,user.name],cb)
-  }
-};
-module.exports=User;
+const { Sequelize, DataTypes } = require("sequelize");
+const sequelize = require('../config/database')
+const User = sequelize.define('user', {
+   user_id:{
+
+      type:Sequelize.INTEGER,
+
+      autoIncrement:true,
+
+      allowNull:false,
+
+      primaryKey:true
+   },
+
+   username: { type: Sequelize.STRING, allowNull:false,unique:true },
+   
+   password: { type: Sequelize.STRING, allowNull:false },
+
+   dob: {type:Sequelize.DATE},
+
+   address: {type:Sequelize.STRING},
+
+
+   //Timestamps
+   createdAt: Sequelize.DATE,
+   updatedAt: Sequelize.DATE,
+})
+
+module.exports = User
