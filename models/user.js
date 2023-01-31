@@ -20,10 +20,11 @@ const User = sequelize.define('user', {
 
    address: {type:Sequelize.STRING},
 
+   last_login: {type:Sequelize.DATE},
+
 
    //Timestamps
    createdAt: Sequelize.DATE,
    updatedAt: Sequelize.DATE,
 })
-
 module.exports = User

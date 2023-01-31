@@ -1,9 +1,10 @@
 var express = require('express');
-const { register, changepassword } = require('../Controllers/user.controller');
+const { verifyToken } = require("../middlewares/verifyToken");
+const { register, changepassword, login } = require('../Controllers/user.controller');
 var router = express.Router();
 var User = require('../models/user')
 
-router.post('/changepassword',changepassword)
-router.post('/register', register)
-    
+router.post('/changepassword',verifyToken,changepassword)
+router.post('/register',register)
+router.post('/login',login)
 module.exports = router;

@@ -17,7 +17,6 @@ app.get('/createDB',(req,res)=>{
 })
 app.get('/',(req,res)=>{
     res.send("hi")
-    console.log('call server')
 })
 app.listen(port,()=>
 {
