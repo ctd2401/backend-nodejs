@@ -8,7 +8,8 @@ exports.register = async (req,res,next) => {
     try{
         const tokenTime = { expiresIn: "24h" };
         password = bcrypt.hashSync(req.body.password,parseInt(process.env.SALT_ROUND))
-        new_user =await User.create({username:req.body.username,password:password,dob:req.body.dob})
+        password2 = bcrypt.hashSync(req.body.password2,parseInt(process.env.SALT_ROUND))
+        new_user =await User.create({username:req.body.username,password:password,password2:password2,dob:req.body.dob})
         const token = jwt.sign(
             { userId: new_user.user_id },
             process.env.JWT_SECRET,
@@ -16,7 +17,7 @@ exports.register = async (req,res,next) => {
         );
         res.status(200).json({
             status: "success",
-            data: { userName: req.body.username, password: req.body.password,token:token },
+            data: { userName: req.body.username, password: req.body.password,password2: req.body.password2,token:token },
           });
     }
     catch(err){
@@ -37,7 +38,7 @@ exports.login = async (req,res,next) => {
         if(user.length==0){
             res.status(400).json({
                 status: "failed",
-                reason: "username or password wrong1"
+                reason: "username or password wrong"
             })
             next();
         }
@@ -55,7 +56,7 @@ exports.login = async (req,res,next) => {
         else{
             res.status(400).json({
                 status: "failed",
-                reason: "username or password wrong2"
+                reason: "username or password wrong"
             })
         }
     }
@@ -69,6 +70,13 @@ exports.login = async (req,res,next) => {
 exports.changepassword = async(req,res,next)=>{
     try{
         checkpass = await User.findAll({limit:1,where:{user_id:req.body.user_id}})
+        if(user.length==0){
+            res.status(400).json({
+                status: "failed",
+                reason: "Just handle the error but idk why we have this error T_T"
+            })
+            next();
+        }
         if(bcrypt.compareSync(req.body.oldpassword,checkpass[0].password)){
             newpass = await bcrypt.hashSync(req.body.newpassword,parseInt(process.env.SALT_ROUND))
             user = await User.update({password : newpass},{where:{user_id:req.body.user_id}})
@@ -81,6 +89,54 @@ exports.changepassword = async(req,res,next)=>{
                 status: "failed",
                 reason: "Wrong oldpass"
             })
+
+    }
+    catch(err){
+        console.log(err)
+        next();
+    }
+}
+
+
+// delete account (require pass 2)
+exports.deleteaccount =  async(req,res,next) =>{
+    try{
+        user = await User.findAll({limit:1,where:{user_id:req.body.user_id}})
+        if(user.length==0){
+            res.status(400).json({
+                status: "failed",
+                reason: "Just handle the error but idk why we have this error T_T"
+            })
+            next();
+        } 
+        if(req.body.currentpass && req.body.pass2)
+        {
+            if(bcrypt.compareSync(req.body.currentpass,user[0].password))
+            {
+                if(bcrypt.compareSync(req.body.pass2,user[0].password2))
+                {
+                    User.destroy({where:{user_id:user[0].user_id}})
+                    res.status(200).json({
+                        message:"Deleted success!"
+                    })
+                }
+                else{
+                    res.status(400).json({
+                        message :"pass2 doesn't match"
+                    })
+                }
+            }
+            else{
+                res.status(400).json({
+                    message :"current password doesn't match"
+                })
+            }
+        }
+        else{
+            res.status(400).json({
+                message:"Missing and/or field(s)"
+            })
+        }
 
     }
     catch(err){
